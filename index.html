@@ -1,99 +1,160 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reciprocal Tariff Quiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
 
-.quiz-container {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
-}
+        #timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
 
-h1 {
-    font-size: 20px;
-    text-align: center;
-}
+        .quiz-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
 
-#timer-message {
-    font-size: 16px;
-    text-align: center;
-    margin-bottom: 10px;
-}
+        .option {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
 
-#timer {
-    font-size: 30px;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
-}
+        .option:hover:not(:disabled) {
+            background-color: #f8f8f8;
+        }
 
-.options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+        .option.correct {
+            background-color: #90EE90 !important;
+            border-color: #006400;
+        }
 
-.option {
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #f1f1f1;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
+        .option.incorrect {
+            background-color: #FFB6C1 !important;
+            border-color: #8B0000;
+        }
 
-.option:hover {
-    background-color: #e0e0e0;
-}
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
 
-.option.correct {
-    background-color: #28a745;
-    color: white;
-}
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-.option.incorrect {
-    background-color: #dc3545;
-    color: white;
-}
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
 
-.option:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
+        #more-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
 
-.buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
+        #subscribe-btn {
+            background-color: #FF0000;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">Timer starts in 10 seconds...</div>
+    <div class="quiz-container">
+        <h2>The president Donald Trump has announced the reciprocal Tariff, on 13 February 2025, what is that?</h2>
+        <div class="options">
+            <button class="option" data-correct="true">A tax on imports equivalent to another country's tariffs on US goods</button>
+            <button class="option">A free trade agreement with China</button>
+            <button class="option">A new immigration policy</button>
+            <button class="option">A domestic manufacturing subsidy program</button>
+        </div>
+        <div class="action-buttons">
+            <button id="more-btn" onclick="window.open('https://ryancartz.github.io/reprocal-blog/', '_blank')">
+                <i class="fas fa-globe"></i> More..
+            </button>
+            <button id="subscribe-btn" onclick="window.open('https://youtube.com/@ryanquiz-k7n', '_blank')">
+                <i class="fab fa-youtube"></i> Subscribe
+            </button>
+        </div>
+    </div>
 
-.more-button, .subscribe-button {
-    padding: 10px 15px;
-    font-size: 14px;
-    border: none;
-    background-color: #FF0000;
-    color: white;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-}
+    <script>
+        let timeLeft = 10;
+        let timerInterval;
+        const options = document.querySelectorAll('.option');
+        const timerDisplay = document.getElementById('timer');
 
-.more-button:hover, .subscribe-button:hover {
-    background-color: #e60000;
-}
+        // Initial 10-second delay before starting timer
+        setTimeout(() => {
+            startTimer();
+            options.forEach(option => option.disabled = false);
+        }, 10000);
 
-.more-button img, .subscribe-button img {
-    width: 20px;
-    height: 20px;
-}
+        function startTimer() {
+            timerDisplay.textContent = `Time left: ${timeLeft}s`;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `Time left: ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    checkAnswer(null);
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedButton) {
+            clearInterval(timerInterval);
+            const correctAnswer = document.querySelector('[data-correct="true"]');
+            
+            options.forEach(option => {
+                option.disabled = true;
+                if (option === correctAnswer) {
+                    option.classList.add('correct');
+                } else {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (selectedButton) {
+                const isCorrect = selectedButton === correctAnswer;
+                alert(isCorrect ? 'Correct Answer!' : 'Incorrect Answer!');
+            } else {
+                alert(`Time's up! Correct answer: ${correctAnswer.textContent}`);
+            }
+        }
+
+        // Add event listeners to options
+        options.forEach(option => {
+            option.disabled = true;
+            option.addEventListener('click', () => checkAnswer(option));
+        });
+    </script>
+</body>
+</html>
